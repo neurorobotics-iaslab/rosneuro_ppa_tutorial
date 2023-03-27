@@ -142,3 +142,43 @@ Inside the git repository ppa:
 echo "deb [signed-by=/etc/apt/trusted.gpg.d/rosneuro-key.gpg] https://rosneuro.github.io/ppa ./" > rosneuro.list
 ```
 This file will be installed later on in the user’s /etc/apt/sources.list.d/ directory. This tells apt to look for updates from your PPA in https://rosneuro.github.io/ppa.
+
+## 7. Commit and push your PPA
+Commit and push to GitHub and your PPA is ready to go:
+```
+git add -A
+git commit -m "rosneuro ppa repository is now hosted on github"
+git push -u origin master
+```
+
+## 8. Share the PPA repository
+It is possible to share the ppa by asking to users to run:
+```
+curl -s --compressed "https://rosneuro.github.io/ppa/rosneuro-key.gpg" | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/rosneuro-key.gpg >/dev/null
+sudo curl -s --compressed -o /etc/apt/sources.list.d/rosneuro.list "https://rosneuro.github.io/ppa/rosneuro.list"
+sudo apt update
+```
+Then they can install your packages:
+```
+sudo apt install package-a package-b package-z
+```
+Whenever you publish a new version for an existing package your users will get it just like any other update.
+
+## 9. How to add new packages
+Just put your new .deb files inside the git repository ppa and execute:
+
+```
+# Packages & Packages.gz
+dpkg-scanpackages --multiversion . > Packages
+gzip -k -f Packages
+
+# Release, Release.gpg & InRelease
+apt-ftparchive release . > Release
+gpg --default-key "${EMAIL}" -abs -o - Release > Release.gpg
+gpg --default-key "${EMAIL}" --clearsign -o - Release > InRelease
+
+# Commit & push
+git add -A
+git commit -m update
+git push
+```
