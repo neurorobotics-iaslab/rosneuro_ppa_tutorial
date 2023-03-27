@@ -114,8 +114,8 @@ pub rsa4096 2023-03-27 [SC]
 uid My Name <my.name@email.com>
 sub rsa4096 2023-03-27 [E]
 ```
-## 3. Creating the ```KEY.gpg``` file
-Create the ASCII public key file KEY.gpg inside the git repository ppa:
+## 3. Creating the ```rosneuro-key.gpg``` file
+Create the ASCII public key file rosneuro-key.gpg inside the git repository ppa:
 ```
 gpg --armor --export "${EMAIL}" > /path/to/ppa/rosneuro-key.gpg
 ```
@@ -171,12 +171,14 @@ Just put your new .deb files inside the git repository ppa and execute:
 # Packages & Packages.gz
 dpkg-scanpackages --multiversion . > Packages
 gzip -k -f Packages
-
+```
+```
 # Release, Release.gpg & InRelease
 apt-ftparchive release . > Release
 gpg --default-key "${EMAIL}" -abs -o - Release > Release.gpg
 gpg --default-key "${EMAIL}" --clearsign -o - Release > InRelease
-
+```
+```
 # Commit & push
 git add -A
 git commit -m update
