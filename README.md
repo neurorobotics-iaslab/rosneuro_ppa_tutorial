@@ -86,7 +86,7 @@ Is this correct? (y/N) y
 Enter your name and email:
 ```
 Real name: My Name
-Email address: My Email
+Email address: ${EMAIL}
 Comment:
 You selected this USER-ID:
 "My Name <my.name@email.com>"
@@ -114,3 +114,31 @@ pub rsa4096 2023-03-27 [SC]
 uid My Name <my.name@email.com>
 sub rsa4096 2023-03-27 [E]
 ```
+## 3. Creating the ```KEY.gpg``` file
+Create the ASCII public key file KEY.gpg inside the git repository ppa:
+```
+gpg --armor --export "${EMAIL}" > /path/to/ppa/rosneuro-key.gpg
+```
+Note: The private key is referenced by the email address you entered in the previous step.
+
+## 4. Creating the ```Packages``` and ```Packages.gz``` files
+Inside the git repository ppa:
+```
+dpkg-scanpackages --multiversion . > Packages
+gzip -k -f Packages
+```
+
+## 5. Creating the ```Release```, ```Release.gpg``` and ```InRelease``` files
+Inside the git repository ppa:
+```
+apt-ftparchive release . > Release
+gpg --default-key "${EMAIL}" -abs -o - Release > Release.gpg
+gpg --default-key "${EMAIL}" --clearsign -o - Release > InRelease
+```
+
+## 6. Creating the ```rosneuro.list``` file
+Inside the git repository ppa:
+```
+echo "deb [signed-by=/etc/apt/trusted.gpg.d/rosneuro-key.gpg] https://rosneuro.github.io/ppa ./" > rosneuro.list
+```
+This file will be installed later on in the user’s /etc/apt/sources.list.d/ directory. This tells apt to look for updates from your PPA in https://rosneuro.github.io/ppa.
